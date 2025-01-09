@@ -1,28 +1,31 @@
-"use client";
-import React, { useState } from 'react';
 
-interface Expense {
-    description: string;
-    amount: number;
-}
+"use client";
+import React, {useEffect, useState} from 'react';
+import { useExpenseContext } from '@/context/ExpenseContext';
 
 const Expenses: React.FC = () => {
-    const [expenses, setExpenses] = useState<Expense[]>([]);
+    const { expenses, addExpense } = useExpenseContext();
     const [description, setDescription] = useState<string>('');
     const [amount, setAmount] = useState<string>('');
+    const [category, setCategory] = useState<string>('Продукты');
 
-    const addExpense = (e: React.FormEvent<HTMLFormElement>) => {
+    useEffect(() =>
+        console.log("expenses: ", expenses), [expenses]
+    )
+
+    const handleAddExpense = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const newExpense: Expense = { description, amount: parseFloat(amount) };
-        setExpenses([...expenses, newExpense]);
+        const newExpense = { description, amount: parseFloat(amount), category };
+        addExpense(newExpense);
         setDescription('');
         setAmount('');
+        setCategory('Продукты');
     };
 
     return (
         <div className="p-4">
             <h1 className="text-2xl font-bold mb-4">Расходы</h1>
-            <form onSubmit={addExpense} className="mb-4">
+            <form onSubmit={handleAddExpense} className="mb-4">
                 <input
                     type="text"
                     placeholder="Описание"
@@ -39,6 +42,15 @@ const Expenses: React.FC = () => {
                     required
                     className="border p-2 mr-2"
                 />
+                <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="border p-2 mr-2"
+                >
+                    <option value="Продукты">Продукты</option>
+                    <option value="Развлечения">Развлечения</option>
+                    <option value="Зарплата">Зарплата</option>
+                </select>
                 <button type="submit" className="bg-blue-500 text-white p-2">
                     Добавить расход
                 </button>
@@ -46,7 +58,7 @@ const Expenses: React.FC = () => {
             <ul>
                 {expenses.map((expense, index) => (
                     <li key={index} className="mb-2">
-                        {expense.description}: {expense.amount} ₽
+                        {expense.description}: {expense.amount} ₽ (Категория: {expense.category})
                     </li>
                 ))}
             </ul>

@@ -1,10 +1,10 @@
 "use client";
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useExpenseContext } from '@/context/ExpenseContext';
 import generateId from '@/utils/generateId';
 
 const Income: React.FC = () => {
-    const { addIncome, accounts, addAccount, income } = useExpenseContext();
+    const { addIncome, accounts, updateAccount, income } = useExpenseContext();
     const [description, setDescription] = useState<string>('');
     const [amount, setAmount] = useState<string>('');
     const [date, setDate] = useState<string>('');
@@ -13,7 +13,9 @@ const Income: React.FC = () => {
     const [quantity, setQuantity] = useState<number>(1);
     const [category, setCategory] = useState<string>('Аренда');
 
-    console.log("accounts: ", accounts);
+    useEffect(() => {
+        console.log("accounts: ", accounts);
+    }, [accounts])
 
     const handleAddIncome = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -24,7 +26,7 @@ const Income: React.FC = () => {
         const selectedAccount = accounts.find(acct => acct.name === account);
         if (selectedAccount) {
             const updatedAccount = { ...selectedAccount, balance: selectedAccount.balance + parseFloat(amount) };
-            addAccount(updatedAccount);
+            updateAccount(updatedAccount);
         }
 
         setDescription('');

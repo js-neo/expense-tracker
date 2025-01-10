@@ -23,10 +23,10 @@ const Navigation: React.FC = () => {
                 Доходы
             </Link>
             <Link href="/expenses" className={getLinkClasses('/expenses')}>
-                Ввод расходов
+                Расходы
             </Link>
             <Link href="/graphs" className={getLinkClasses('/graphs')}>
-                График
+                Графики
             </Link>
         </nav>
     );

@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from 'react';
-import { useExpenseContext } from '@/context/ExpenseContext';
+import React, {useState} from 'react';
+import {useExpenseContext} from '@/context/ExpenseContext';
 import generateId from '@/utils/generateId';
 
 interface Account {
@@ -8,24 +8,33 @@ interface Account {
     name: string;
     balance: number;
     createdAt: string;
+    updatedAt: string;
     currency: string;
 }
 
 const Accounts: React.FC = () => {
-    const { addAccount, accounts } = useExpenseContext();
+    const {addAccount, accounts} = useExpenseContext();
     const [name, setName] = useState<string>('');
     const [balance, setBalance] = useState<string>('');
     const [createdAt, setCreatedAt] = useState<string>('');
     const [currency, setCurrency] = useState<string>('₽');
+    const [errorMessage, setErrorMessage] = useState<string>('');
 
     const handleAddAccount = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const newAccount: Account = { id: generateId(), name, balance: parseFloat(balance), createdAt, currency };
+        const newAccount: Account = {
+            id: generateId(),
+            name,
+            balance: parseFloat(balance),
+            createdAt,
+            currency,
+            updatedAt: new Date().toISOString()
+        };
 
         const existingAccountIndex = accounts.findIndex(acct => acct.name === name);
         if (existingAccountIndex !== -1) {
-            const updatedAccount = { ...accounts[existingAccountIndex], balance: newAccount.balance, createdAt, currency };
-            addAccount(updatedAccount);
+            setErrorMessage('Счет с таким именем уже существует.');
+            return;
         } else {
             addAccount(newAccount);
         }
@@ -36,9 +45,16 @@ const Accounts: React.FC = () => {
         setCurrency('₽');
     };
 
+    const formatDate = (dateString: string) => {
+        const options: Intl.DateTimeFormatOptions = {day: 'numeric', month: 'long', year: 'numeric'};
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU', options);
+    };
+
     return (
         <div className="p-4">
             <h1 className="text-2xl font-bold mb-4">Счета</h1>
+            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
             <form onSubmit={handleAddAccount} className="mb-4 grid grid-cols-2 gap-4">
                 <input
                     type="text"
@@ -85,7 +101,9 @@ const Accounts: React.FC = () => {
                     <ul className="list-disc pl-5">
                         {accounts.map((account) => (
                             <li key={account.id} className="mb-2">
-                                <strong>{account.name}</strong> - {account.balance} {account.currency} (Создан: {account.createdAt})
+                                <strong>{account.name}</strong> - {account.balance} {account.currency}
+                                (Создан: {formatDate(account.createdAt)}, Последнее
+                                обновление: {formatDate(account.updatedAt)})
                             </li>
                         ))}
                     </ul>

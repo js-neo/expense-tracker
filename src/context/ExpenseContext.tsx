@@ -37,8 +37,8 @@ interface ExpenseContextType {
     accounts: Account[];
     income: Income[];
     addExpense: (expense: Expense) => void;
-    addAccount: (account: Omit<Account, 'id' | 'updatedAt'>) => void;
-    updateAccount: (account: Omit<Account, 'id'>) => void;
+    addAccount: (account: Account) => void;
+    updateAccount: (account: Account) => void;
     addIncome: (income: Income) => void;
     transferFunds: (fromAccount: string, toAccount: string, amount: number) => void;
 }
@@ -57,25 +57,14 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setExpenses((prev) => [...prev, newExpense]);
     };
 
-    const addAccount = (account: Omit<Account, 'id' | 'updatedAt'>) => {
-        const newAccount = { ...account, id: generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-        setAccounts((prev) => [...prev, newAccount]);
+    const addAccount = (account: Account) => {
+        setAccounts((prev) => [...prev, account]);
     };
 
-    const updateAccount = (account: Omit<Account, 'id'>) => {
+    const updateAccount = (account: Account) => {
         setAccounts((prevAccounts) => {
-            const existingAccountIndex = prevAccounts.findIndex(acc => acc.name === account.name);
-            if (existingAccountIndex !== -1) {
-                const updatedAccount = {
-                    ...prevAccounts[existingAccountIndex],
-                    balance: prevAccounts[existingAccountIndex].balance + account.balance,
-                    updatedAt: new Date().toISOString()
-                };
-                const newAccounts = [...prevAccounts];
-                newAccounts[existingAccountIndex] = updatedAccount;
-                return newAccounts;
-            }
-            return prevAccounts;
+            return prevAccounts.map(acc => acc.id === account.id ? {...acc, balance: account.balance,
+                updatedAt: new Date().toISOString()} : acc);
         });
     };
 

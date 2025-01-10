@@ -1,39 +1,45 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useExpenseContext } from '@/context/ExpenseContext';
 import generateId from '@/utils/generateId';
 
-const Expenses: React.FC = () => {
-    const { expenses, addExpense, accounts } = useExpenseContext();
+const Income: React.FC = () => {
+    const { addIncome, accounts, addAccount, income } = useExpenseContext();
     const [description, setDescription] = useState<string>('');
     const [amount, setAmount] = useState<string>('');
-    const [category, setCategory] = useState<string>('Продукты');
     const [date, setDate] = useState<string>('');
     const [account, setAccount] = useState<string>('');
     const [currency, setCurrency] = useState<string>('₽');
     const [quantity, setQuantity] = useState<number>(1);
+    const [category, setCategory] = useState<string>('Аренда');
 
-    useEffect(() => {
-        console.log("expenses: ", expenses);
-    }, [expenses]);
+    console.log("accounts: ", accounts);
 
-    const handleAddExpense = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleAddIncome = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const newExpense = { id: generateId(), description, amount: parseFloat(amount), category, date, account, currency, quantity };
-        addExpense(newExpense);
+        const newIncome = { id: generateId(), description, amount: parseFloat(amount), date, account, currency, quantity, category };
+
+        addIncome(newIncome);
+
+        const selectedAccount = accounts.find(acct => acct.name === account);
+        if (selectedAccount) {
+            const updatedAccount = { ...selectedAccount, balance: selectedAccount.balance + parseFloat(amount) };
+            addAccount(updatedAccount);
+        }
+
         setDescription('');
         setAmount('');
-        setCategory('Продукты');
         setDate('');
         setAccount('');
         setCurrency('₽');
         setQuantity(1);
+        setCategory('Аренда');
     };
 
     return (
         <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Расходы</h1>
-            <form onSubmit={handleAddExpense} className="mb-4 grid grid-cols-2 gap-4">
+            <h1 className="text-2xl font-bold mb-4">Доходы</h1>
+            <form onSubmit={handleAddIncome} className="mb-4 grid grid-cols-2 gap-4">
                 <input
                     type="text"
                     placeholder="Описание"
@@ -94,23 +100,18 @@ const Expenses: React.FC = () => {
                     className="border p-2"
                     required
                 >
-                    <option value="Продукты">Продукты</option>
-                    <option value="Хозяйственные товары">Хозяйственные товары</option>
-                    <option value="Транспорт">Транспорт</option>
-                    <option value="Одежда">Одежда</option>
-                    <option value="Обувь">Обувь</option>
-                    <option value="Техника">Техника</option>
-                    <option value="Услуги">Услуги</option>
+                    <option value="Аренда">Аренда</option>
+                    <option value="Зарплата">Зарплата</option>
+                    <option value="Семья">Семья</option>
                 </select>
                 <button type="submit" className="bg-blue-500 text-white p-2 col-span-2">
-                    Добавить расход
+                    Добавить доход
                 </button>
             </form>
             <ul>
-                {expenses.map((expense) => (
-                    <li key={expense.id} className="mb-2">
-                        {expense.description}: {expense.amount} {expense.currency} (Категория: {expense.category},
-                        Счет: {expense.account}, Дата: {expense.date})
+                {income.map((inc) => (
+                    <li key={inc.id} className="mb-2">
+                        {inc.description}: {inc.amount} {inc.currency} (Категория: {inc.category}, Счет: {inc.account}, Дата: {inc.date})
                     </li>
                 ))}
             </ul>
@@ -118,4 +119,4 @@ const Expenses: React.FC = () => {
     );
 };
 
-export default Expenses;
+export default Income;
